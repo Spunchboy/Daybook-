@@ -1,8 +1,12 @@
-const CACHE = 'daybook-v1';
+const CACHE = 'daybook-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => Promise.all(ASSETS.map((u) => c.add(new Request(u, { cache: 'reload' })))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -13,18 +17,37 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Open instantly from the saved copy, and refresh that copy in the background when online.
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    caches.match(e.request).then((cached) => {
-      const fresh = fetch(e.request).then((res) => {
-        if (res && res.ok && new URL(e.request.url).origin === self.location.origin) {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+
+  // Opening the app: use the newest version when online, the saved copy when offline.
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      Promise.race([
+        fetch(req),
+        new Promise((_, reject) => setTimeout(reject, 3000))
+      ]).then((res) => {
+        if (res && res.ok) {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
+          caches.open(CACHE).then((c) => c.put(req, copy));
         }
         return res;
-      }).catch(() => cached || caches.match('./index.html'));
+      }).catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Everything else: saved copy first, refreshed in the background.
+  e.respondWith(
+    caches.match(req).then((cached) => {
+      const fresh = fetch(req).then((res) => {
+        if (res && res.ok && new URL(req.url).origin === self.location.origin) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
+        }
+        return res;
+      }).catch(() => cached);
       return cached || fresh;
     })
   );
