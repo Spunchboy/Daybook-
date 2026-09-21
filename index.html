@@ -14,7 +14,7 @@
 <style>
 :root{
   --bg:#F1F3F0; --surface:#FFFFFF; --ink:#16222A; --ink2:#5B6A72; --line:#E1E5E2; --soft:#E6EAE7;
-  --on-ink:#FFFFFF; --danger:#C93A3A;
+  --on-ink:#FFFFFF; --danger:#C93A3A; --wknd:#D0342C; --fest:#D9780A; --fest-bg:#FFF0D9;
   --k-work:#3560E8; --k-finance:#12946A; --k-home:#D98A0B; --k-personal:#D0407A;
   --k-health:#7B4FD8; --k-teal:#0E8FA3; --k-red:#D0492F; --k-slate:#5F6F7A;
   --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
@@ -24,7 +24,7 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#101619; --surface:#182126; --ink:#E9EFF1; --ink2:#93A3AB; --line:#26333A; --soft:#22303A;
-    --on-ink:#101619; --danger:#F07A7A;
+    --on-ink:#101619; --danger:#F07A7A; --wknd:#FF7B72; --fest:#F2A33A; --fest-bg:#352a12;
     --k-work:#7F9CFF; --k-finance:#4CD3A0; --k-home:#F2B54A; --k-personal:#F27AAA;
     --k-health:#B597F5; --k-teal:#4CC6DA; --k-red:#F28A6E; --k-slate:#9AA9B3;
     color-scheme:dark;
@@ -32,7 +32,7 @@
 }
 :root[data-theme="dark"]{
   --bg:#101619; --surface:#182126; --ink:#E9EFF1; --ink2:#93A3AB; --line:#26333A; --soft:#22303A;
-  --on-ink:#101619; --danger:#F07A7A;
+  --on-ink:#101619; --danger:#F07A7A; --wknd:#FF7B72; --fest:#F2A33A; --fest-bg:#352a12;
   --k-work:#7F9CFF; --k-finance:#4CD3A0; --k-home:#F2B54A; --k-personal:#F27AAA;
   --k-health:#B597F5; --k-teal:#4CC6DA; --k-red:#F28A6E; --k-slate:#9AA9B3;
   color-scheme:dark;
@@ -157,10 +157,15 @@ input[type=date]{margin-top:10px}
 .cal-nav button svg{width:18px;height:18px;display:block;margin:auto}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal-dow{font-size:12px;font-weight:600;color:var(--ink2);text-align:center;padding:4px 0}
-.cal-day{min-height:58px;background:var(--surface);border:1.5px solid transparent;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0 4px;font-weight:500;font-size:14px}
+.cal-dow.w{color:var(--wknd)}
+.cal-day{position:relative;min-height:58px;background:var(--surface);border:1.5px solid transparent;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0 4px;font-weight:500;font-size:14px}
 .cal-day.blank{background:none;pointer-events:none}
+.cal-day.wknd .dn{color:var(--wknd)}
+.cal-day.fest{background:var(--fest-bg)}
+.cal-day.fest::after{content:"\2726";position:absolute;top:4px;right:6px;font-size:10px;line-height:1;color:var(--fest)}
+.cal-day.today .dn{color:var(--on-ink)}
 .cal-day .dn{width:26px;height:26px;border-radius:50%;display:grid;place-items:center}
-.cal-day.today .dn{background:var(--ink);color:var(--on-ink);font-weight:700}
+.cal-day.today .dn{background:var(--ink);font-weight:700}
 .cal-day.sel{border-color:var(--ink)}
 .dots{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;max-width:44px;min-height:6px}
 .dots i{width:6px;height:6px;border-radius:50%;background:var(--c)}
@@ -168,7 +173,32 @@ input[type=date]{margin-top:10px}
 .dots i.done{opacity:.3}
 .dots b{font-size:9px;line-height:6px;color:var(--ink2)}
 .sec h2 .addday{margin-left:auto;padding:0;font-size:14px}
+.fest-note{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0 0 8px;padding:10px 14px;border-radius:14px;background:var(--fest-bg);border-left:4px solid var(--fest);font-size:15px}
+.fest-note b{font-weight:600}
+.fest-note span{font-size:12.5px;color:var(--ink2)}
+.festlist{list-style:none;margin:0;padding:0;background:var(--surface);border-radius:18px;overflow:hidden}
+.festlist li{border-top:1px solid var(--line)}
+.festlist li:first-child{border-top:0}
+.fest-row{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:none;border:0;padding:12px 14px}
+.fest-row .fd{flex:none;min-width:58px;font-family:var(--display);font-weight:700;font-size:15px;color:var(--fest)}
+.fest-row .fn{flex:1;font-weight:500}
+.fnote{margin:10px 2px 0;font-size:12.5px;color:var(--ink2)}
 .emptyday{margin:0;padding:6px 2px;color:var(--ink2);font-size:15px}
+
+/* alarms */
+.meta .al{color:var(--k-home);font-weight:600}
+.hint{margin:8px 2px 10px;font-size:13px;color:var(--ink2)}
+.alarm{position:fixed;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top,0px));max-width:496px;margin:0 auto;z-index:40;background:var(--ink);color:var(--on-ink);border-radius:20px;padding:16px;box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.alarm[hidden]{display:none}
+.alarm .al-top{display:flex;align-items:center;gap:14px}
+.alarm .al-top svg{width:34px;height:34px;flex:none;transform-origin:50% 12%;animation:bellring .45s ease-in-out infinite alternate}
+.alarm strong{display:block;font-family:var(--display);font-size:20px;line-height:1.2;overflow-wrap:anywhere}
+.alarm .al-top span{font-size:14px;opacity:.75}
+.alarm .btns{margin-top:14px}
+.alarm .btn{padding:12px 12px;font-size:15px}
+.alarm .btn.pri{background:var(--on-ink);color:var(--ink)}
+.alarm .btn.ghost{background:rgba(127,127,127,.28);color:var(--on-ink)}
+@keyframes bellring{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 
 /* toast */
 .toast{position:fixed;left:50%;bottom:calc(158px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:30;background:var(--ink);color:var(--on-ink);border-radius:14px;padding:11px 14px 11px 16px;display:flex;align-items:center;gap:14px;font-size:15px;font-weight:500;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px)}
@@ -201,6 +231,7 @@ input[type=date]{margin-top:10px}
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Task details"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="import-file" accept="application/json,.json" hidden>
+<div class="alarm" id="alarm" role="alertdialog" aria-live="assertive" hidden></div>
 
 <script>
 (function(){
@@ -220,6 +251,12 @@ var REPEATS = [['none','Never'],['daily','Daily'],['weekly','Weekly'],['monthly'
 var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 var REPEAT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l3 3-3 3M4 11V9a4 4 0 014-4h16M7 22l-3-3 3-3M20 13v2a4 4 0 01-4 4H4"/></svg>';
 
+var FEST_RAW = [["2026-01-01", "New Year"], ["2026-01-14", "Bhogi / Makar Sankranti"], ["2026-01-15", "Thai Pongal"], ["2026-01-16", "Mattu Pongal / Thiruvalluvar Day"], ["2026-01-17", "Uzhavar Thirunal"], ["2026-01-23", "Vasant Panchami"], ["2026-01-26", "Republic Day"], ["2026-02-01", "Thai Poosam"], ["2026-02-15", "Maha Shivaratri"], ["2026-03-03", "Holika Dahan"], ["2026-03-04", "Holi"], ["2026-03-19", "Ugadi / Telugu New Year"], ["2026-03-21", "Eid-ul-Fitr (Ramzan)", true], ["2026-03-26", "Ram Navami"], ["2026-03-31", "Mahavir Jayanti"], ["2026-04-03", "Good Friday"], ["2026-04-05", "Easter"], ["2026-04-14", "Tamil New Year / Ambedkar Jayanti"], ["2026-05-01", "May Day"], ["2026-05-01", "Buddha Purnima"], ["2026-05-27", "Bakrid (Eid-ul-Adha)", 1], ["2026-06-26", "Muharram", true], ["2026-07-16", "Rath Yatra"], ["2026-08-15", "Independence Day"], ["2026-08-26", "Onam (Thiruvonam)"], ["2026-08-26", "Milad-un-Nabi", true], ["2026-08-28", "Raksha Bandhan"], ["2026-09-04", "Krishna Jayanthi"], ["2026-09-14", "Vinayagar Chaturthi", true], ["2026-10-02", "Gandhi Jayanti"], ["2026-10-11", "Navratri begins"], ["2026-10-19", "Ayudha Pooja"], ["2026-10-20", "Vijayadashami (Dussehra)"], ["2026-11-08", "Deepavali"], ["2026-11-24", "Guru Nanak Jayanti"], ["2026-12-24", "Christmas Eve"], ["2026-12-25", "Christmas"], ["2027-01-01", "New Year"], ["2027-01-14", "Bhogi"], ["2027-01-15", "Thai Pongal", 1], ["2027-01-16", "Mattu Pongal / Thiruvalluvar Day", 1], ["2027-01-17", "Uzhavar Thirunal", 1], ["2027-01-26", "Republic Day"], ["2027-02-11", "Vasant Panchami"], ["2027-03-06", "Maha Shivaratri"], ["2027-03-10", "Eid-ul-Fitr (Ramzan)", 1], ["2027-03-22", "Holi", 1], ["2027-03-26", "Good Friday"], ["2027-03-28", "Easter"], ["2027-04-14", "Tamil New Year / Ambedkar Jayanti"], ["2027-04-15", "Ram Navami"], ["2027-04-19", "Mahavir Jayanti", 1], ["2027-05-01", "May Day"], ["2027-05-17", "Bakrid (Eid-ul-Adha)", 1], ["2027-05-20", "Buddha Purnima"], ["2027-06-16", "Muharram", 1], ["2027-08-15", "Independence Day"], ["2027-08-16", "Milad-un-Nabi", 1], ["2027-08-17", "Raksha Bandhan"], ["2027-08-25", "Krishna Jayanthi"], ["2027-09-04", "Vinayagar Chaturthi", 1], ["2027-09-12", "Onam (Thiruvonam)", 1], ["2027-09-30", "Navratri begins"], ["2027-10-02", "Gandhi Jayanti"], ["2027-10-08", "Ayudha Pooja", 1], ["2027-10-09", "Vijayadashami (Dussehra)"], ["2027-10-29", "Deepavali"], ["2027-11-14", "Guru Nanak Jayanti"], ["2027-12-24", "Christmas Eve"], ["2027-12-25", "Christmas"]];
+var CAN_DOWNLOAD = true;
+var BELL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2 2 0 004 0"/></svg>';
+var FEST = {};
+FEST_RAW.forEach(function(f){ (FEST[f[0]] = FEST[f[0]] || []).push({name: f[1], approx: !!f[2]}); });
+
 var CAL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>';
 
 /* ---------- small helpers ---------- */
@@ -230,6 +267,7 @@ function pad(n){ return String(n).padStart(2, '0'); }
 function ymd(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
 function parse(s){ var p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
 function todayStr(){ return ymd(new Date()); }
+function nowStr(){ var d = new Date(); return ymd(d) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
 function addDays(s, n){ var d = parse(s); d.setDate(d.getDate() + n); return ymd(d); }
 function addMonths(s, n){
   var d = parse(s), day = d.getDate();
@@ -365,7 +403,7 @@ function spawnNext(t){
   } while (next <= T);
   var n = {};
   Object.keys(t).forEach(function(k){ n[k] = t[k]; });
-  n.id = uid(); n.done = false; n.doneOn = null; n.due = next; n.spawn = null; n.from = ''; n.created = Date.now();
+  n.id = uid(); n.done = false; n.doneOn = null; n.due = next; n.spawn = null; n.from = ''; n.alarmFired = ''; n.created = Date.now();
   t.spawn = n.id;
   state.tasks.push(n);
 }
@@ -416,6 +454,7 @@ function rowHtml(t){
     if (cd > 0) meta += '<span class="carry">Carried over ' + cd + (cd === 1 ? ' day' : ' days') + '</span>';
   }
   if (t.amount) meta += '<span class="amt">' + money(t.amount) + '</span>';
+  if (t.alarm && !t.done) meta += '<span class="al">' + BELL + fmtTime(t.alarm) + '</span>';
   if (t.repeat && t.repeat !== 'none') {
     var rl = REPEATS.filter(function(r){ return r[0] === t.repeat; })[0];
     meta += '<span>' + REPEAT_ICON + rl[1] + '</span>';
@@ -445,8 +484,8 @@ function chipsHtml(showCounts){
   return h;
 }
 
-function header(title, sub){
-  return '<div class="top"><div><h1>' + title + '</h1><p class="sub">' + sub + '</p></div>' +
+function header(title, sub, extra){
+  return '<div class="top"><div><h1>' + title + '</h1><p class="sub">' + sub + '</p>' + (extra || '') + '</div>' +
     '<div class="sync' + (syncState === 'synced' ? ' on' : '') + '"><i></i><span>' + (syncState === 'synced' ? 'Synced' : 'This device only') + '</span></div></div>';
 }
 
@@ -462,7 +501,8 @@ function render(){
     var today = open.filter(function(t){ return t.due === T; }).sort(cmp);
     var doneToday = state.tasks.filter(function(t){ return t.done && t.doneOn === T && visible(t); }).sort(function(a, b){ return a.created - b.created; });
     var all = doneToday.concat(overdue, today);
-    h += header('Today', esc(fmtDate(T, {weekday:'long', day:'numeric', month:'long'})));
+    var todayFest = (FEST[T] || []).map(function(f){ return '<div class="fest-note" style="margin:10px 0 0"><b>' + esc(f.name) + '</b>' + (f.approx ? '<span>Date may vary by a day</span>' : '') + '</div>'; }).join('');
+    h += header('Today', esc(fmtDate(T, {weekday:'long', day:'numeric', month:'long'})), todayFest);
     h += '<div class="strip" aria-hidden="true">' + (all.length ? all.map(function(t){
       return '<i class="seg' + (t.done ? ' done' : '') + '" style="--c:var(--k-' + catOf(t).color + ')"></i>';
     }).join('') : '<i class="seg empty"></i>') + '</div>';
@@ -513,17 +553,20 @@ function render(){
     var byDay = {};
     state.tasks.forEach(function(t){ if (t.due && visible(t)) { (byDay[t.due] = byDay[t.due] || []).push(t); } });
     var cells = '', monthCount = 0;
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(n){ cells += '<div class="cal-dow">' + n + '</div>'; });
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(n){ cells += '<div class="cal-dow' + ((n === 'Sun' || n === 'Sat') ? ' w' : '') + '">' + n + '</div>'; });
+    var monthFest = [];
     for (var bi = 0; bi < firstDow; bi++) cells += '<span class="cal-day blank"></span>';
     for (var dd = 1; dd <= dim; dd++) {
       var ds = cy + '-' + pad(cmo + 1) + '-' + pad(dd);
       var its = (byDay[ds] || []).slice().sort(cmp);
       monthCount += its.length;
+      var dow = (firstDow + dd - 1) % 7, fs = FEST[ds] || [];
+      fs.forEach(function(f){ monthFest.push({ds: ds, dd: dd, dow: dow, name: f.name}); });
       var dots = its.slice(0, 4).map(function(t){
         return '<i class="' + (t.done ? 'done ' : '') + (t.kind === 'event' ? 'ev' : '') + '" style="--c:var(--k-' + catOf(t).color + ')"></i>';
       }).join('');
       if (its.length > 4) dots += '<b>+</b>';
-      cells += '<button class="cal-day' + (ds === T ? ' today' : '') + (ds === calSel ? ' sel' : '') + '" type="button" data-act="calsel" data-date="' + ds + '" aria-label="' + esc(fmtDate(ds, {weekday:'long', day:'numeric', month:'long'})) + ', ' + its.length + ' items"><span class="dn">' + dd + '</span><span class="dots">' + dots + '</span></button>';
+      cells += '<button class="cal-day' + (ds === T ? ' today' : '') + (ds === calSel ? ' sel' : '') + ((dow === 0 || dow === 6) ? ' wknd' : '') + (fs.length ? ' fest' : '') + '" type="button" data-act="calsel" data-date="' + ds + '" aria-label="' + esc(fmtDate(ds, {weekday:'long', day:'numeric', month:'long'})) + (fs.length ? ', ' + esc(fs.map(function(f){ return f.name; }).join(', ')) : '') + ', ' + its.length + ' items"><span class="dn">' + dd + '</span><span class="dots">' + dots + '</span></button>';
     }
     h += header('Calendar', monthCount ? monthCount + (monthCount === 1 ? ' entry' : ' entries') + ' this month' : 'Nothing planned this month');
     h += chipsHtml(true);
@@ -534,7 +577,14 @@ function render(){
     h += '<div class="cal-grid">' + cells + '</div>';
     var sel = (byDay[calSel] || []).slice().sort(cmp);
     h += '<section class="sec"><h2>' + esc(fmtDate(calSel, {weekday:'long', day:'numeric', month:'long'})) + '<span class="ct">' + sel.length + '</span><button class="linkbtn addday" type="button" data-act="addday">Add event</button></h2>' +
+      (FEST[calSel] || []).map(function(f){ return '<div class="fest-note"><b>' + esc(f.name) + '</b>' + (f.approx ? '<span>Date may vary by a day</span>' : '') + '</div>'; }).join('') +
       (sel.length ? '<ul class="list">' + sel.map(rowHtml).join('') + '</ul>' : '<p class="emptyday">Nothing on this day yet.</p>') + '</section>';
+    if (monthFest.length) {
+      h += '<section class="sec"><h2>Festivals this month<span class="ct">' + monthFest.length + '</span></h2><ul class="festlist">' + monthFest.map(function(f){
+        return '<li><button class="fest-row" type="button" data-act="calsel" data-date="' + f.ds + '"><span class="fd">' + f.dd + ' ' + ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][f.dow] + '</span><span class="fn">' + esc(f.name) + '</span></button></li>';
+      }).join('') + '</ul></section>';
+    }
+    h += '<p class="fnote">' + ((cy < 2026 || cy > 2027) ? 'Festival dates are added for 2026 and 2027 only.' : 'Festival dates come from published Indian calendars. Moon-based dates can differ by a day, so check before you plan.') + '</p>';
   }
 
   else {
@@ -591,10 +641,10 @@ function openTask(id){
   var t = id ? state.tasks.find(function(x){ return x.id === id; }) : null;
   editingId = t ? t.id : null;
   if (t) {
-    draft = {kind:t.kind === 'event' ? 'event' : 'task', time:t.time || '', title:t.title, cat:t.cat, due:t.due || '', pri:t.pri, repeat:t.repeat || 'none', amount:t.amount ? String(t.amount) : '', note:t.note || ''};
+    draft = {kind:t.kind === 'event' ? 'event' : 'task', time:t.time || '', alarm:t.alarm || '', title:t.title, cat:t.cat, due:t.due || '', pri:t.pri, repeat:t.repeat || 'none', amount:t.amount ? String(t.amount) : '', note:t.note || ''};
   } else {
     draft = {
-      kind: view === 'calendar' ? 'event' : 'task', time:'',
+      kind: view === 'calendar' ? 'event' : 'task', time:'', alarm:'',
       title:'',
       cat: (filter !== 'all' ? filter : state.cats[0].id),
       due: view === 'calendar' ? calSel : (view === 'upcoming' ? addDays(T, 1) : T),
@@ -620,6 +670,7 @@ function openTask(id){
     REPEATS.map(function(r){ return '<button class="opt" type="button" data-group="repeat" data-val="' + r[0] + '" aria-pressed="' + (draft.repeat === r[0]) + '">' + r[1] + '</button>'; }).join('') +
     '</div></div>' +
     '<div class="field"><div class="opts"><button class="opt" type="button" data-group="pri" aria-pressed="' + (!!draft.pri) + '">\u2605 Important</button></div></div>' +
+    '<div class="field" id="alarm-wrap"><span class="lab">Alarm</span><input type="time" id="f-alarm" aria-label="Alarm time"><p class="hint">' + (CAN_DOWNLOAD ? 'Rings on the due date while Daybook is open. For a ring even when the app is closed, add it to your phone calendar.' : 'Rings on the due date while Daybook is open.') + '</p>' + (CAN_DOWNLOAD ? '<button class="opt" type="button" data-do="ics">Add to phone calendar alarm</button>' : '') + '</div>' +
     '<div class="field"><textarea id="f-note" rows="2" placeholder="Add a note" aria-label="Note"></textarea></div>' +
     '<div class="btns">' + (editingId ? '<button class="btn del" type="button" data-do="delete">Delete</button>' : '') +
     '<button class="btn ghost" type="button" data-do="cancel">Cancel</button>' +
@@ -629,7 +680,8 @@ function openTask(id){
   $('#f-amt').value = draft.amount;
   $('#f-note').value = draft.note;
   $('#f-time').value = draft.time;
-  syncDue(); syncAmount(); syncKind();
+  $('#f-alarm').value = draft.alarm;
+  syncDue(); syncAmount(); syncKind(); syncAlarm();
   openSheet();
   if (!editingId) setTimeout(function(){ var f = $('#f-title'); if (f && sheetMode === 'task') f.focus(); }, 280);
 }
@@ -650,6 +702,7 @@ function syncKind(){
   var sb = document.querySelector('[data-do="save"]');
   if (sb && !editingId) sb.textContent = ev ? 'Add event' : 'Add task';
 }
+function syncAlarm(){ $('#alarm-wrap').style.display = draft.pri ? '' : 'none'; }
 function syncAmount(){
   $('#amt-wrap').style.display = (draft.cat === 'finance' || draft.amount) ? '' : 'none';
 }
@@ -659,10 +712,13 @@ function saveDraft(){
   if (!title) { inp.classList.add('err'); inp.focus(); return; }
   var amt = parseFloat(String(draft.amount).replace(/,/g, ''));
   var fields = {
-    title: title, cat: draft.cat, due: draft.due || (draft.kind === 'event' ? todayStr() : ''), pri: draft.pri ? 1 : 0,
+    title: title, cat: draft.cat, due: draft.due || ((draft.kind === 'event' || (draft.pri && draft.alarm)) ? todayStr() : ''), pri: draft.pri ? 1 : 0,
     repeat: draft.repeat, amount: (isFinite(amt) && amt > 0) ? amt : 0, note: draft.note.trim(),
-    kind: draft.kind === 'event' ? 'event' : 'task', time: draft.kind === 'event' ? (draft.time || '') : ''
+    kind: draft.kind === 'event' ? 'event' : 'task', time: draft.kind === 'event' ? (draft.time || '') : '',
+    alarm: draft.pri ? (draft.alarm || '') : ''
   };
+  fields.alarmFired = (fields.alarm && fields.due && (fields.due + 'T' + fields.alarm) <= nowStr()) ? fields.due : '';
+  if (fields.alarm) askNotify();
   if (editingId) {
     var t = state.tasks.find(function(x){ return x.id === editingId; });
     if (t) { if ((t.due || '') !== fields.due) t.from = ''; Object.keys(fields).forEach(function(k){ t[k] = fields[k]; }); }
@@ -716,6 +772,7 @@ sheet.addEventListener('input', function(e){
     if (id === 'f-title') { draft.title = e.target.value; e.target.classList.remove('err'); }
     else if (id === 'f-amt') draft.amount = e.target.value;
     else if (id === 'f-time') draft.time = e.target.value;
+    else if (id === 'f-alarm') draft.alarm = e.target.value;
     else if (id === 'f-note') draft.note = e.target.value;
     else if (id === 'f-date') { draft.due = e.target.value; syncDue(); }
   } else if (sheetMode === 'cat' && id === 'c-name') {
@@ -754,9 +811,10 @@ sheet.addEventListener('click', function(e){
     else if (g === 'kind') { draft.kind = v; if (v === 'event' && !draft.due) draft.due = T; syncDue(); syncKind(); }
     else if (g === 'due') { draft.due = v === 'today' ? T : v === 'tomorrow' ? addDays(T, 1) : ''; syncDue(); }
     else if (g === 'repeat') { draft.repeat = v; pressOnly(b); }
-    else if (g === 'pri') { draft.pri = draft.pri ? 0 : 1; b.setAttribute('aria-pressed', !!draft.pri); }
+    else if (g === 'pri') { draft.pri = draft.pri ? 0 : 1; b.setAttribute('aria-pressed', !!draft.pri); syncAlarm(); }
     else if (d === 'save') saveDraft();
     else if (d === 'delete') deleteDraft();
+    else if (d === 'ics') downloadIcs();
     else if (d === 'cancel') closeSheet();
   } else if (sheetMode === 'cat') {
     if (g === 'swatch') { newCat.color = v; pressOnly(b); }
@@ -808,6 +866,126 @@ $('#app').addEventListener('click', function(e){
     case 'clear': clearDone(); break;
   }
 });
+
+/* ---------- alarms ---------- */
+var ringId = null, beepTimer = null, stopTimer = null, audioCtx = null;
+
+function unlockAudio(){
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) {}
+}
+function beepOnce(){
+  if (!audioCtx) return;
+  try {
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain(), t0 = audioCtx.currentTime;
+    o.type = 'square'; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.35);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + 0.4);
+  } catch (e) {}
+}
+function startRinging(){
+  unlockAudio();
+  var pattern = function(){
+    beepOnce(); setTimeout(beepOnce, 450); setTimeout(beepOnce, 900);
+    if (navigator.vibrate) navigator.vibrate([400, 200, 400, 200, 400]);
+  };
+  pattern();
+  beepTimer = setInterval(pattern, 2500);
+  stopTimer = setTimeout(stopSound, 60000);
+}
+function stopSound(){
+  clearInterval(beepTimer); clearTimeout(stopTimer); beepTimer = null; stopTimer = null;
+  if (navigator.vibrate) navigator.vibrate(0);
+}
+function askNotify(){
+  try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
+}
+function notifyAlarm(t){
+  try {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    var opts = {body: 'Alarm ' + fmtTime(t.alarm), tag: 'daybook-' + t.id, requireInteraction: true, vibrate: [300, 150, 300, 150, 300], icon: 'icon-192.png'};
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+      navigator.serviceWorker.getRegistration().then(function(reg){
+        if (reg) reg.showNotification(t.title, opts);
+        else { try { new Notification(t.title, opts); } catch (e) {} }
+      });
+    } else { new Notification(t.title, opts); }
+  } catch (e) {}
+}
+function showAlarm(t){
+  var el = $('#alarm');
+  el.innerHTML = '<div class="al-top">' + BELL + '<div><strong>' + esc(t.title) + '</strong><span>Alarm ' + fmtTime(t.alarm) + '</span></div></div>' +
+    '<div class="btns"><button class="btn ghost" type="button" data-al="snooze">Snooze 10 min</button><button class="btn ghost" type="button" data-al="stop">Stop</button><button class="btn pri" type="button" data-al="done">Done</button></div>';
+  el.hidden = false;
+  ringId = t.id;
+  startRinging();
+  notifyAlarm(t);
+}
+function hideAlarm(){
+  stopSound();
+  $('#alarm').hidden = true;
+  ringId = null;
+}
+function checkAlarms(){
+  if (ringId) return;
+  var now = nowStr();
+  for (var i = 0; i < state.tasks.length; i++) {
+    var t = state.tasks[i];
+    if (!t.done && t.alarm && t.due && t.alarmFired !== t.due && (t.due + 'T' + t.alarm) <= now) {
+      t.alarmFired = t.due;
+      state.updatedAt = Date.now(); lsSave(); scheduleRemote();
+      showAlarm(t);
+      return;
+    }
+  }
+}
+$('#alarm').addEventListener('click', function(e){
+  var b = e.target.closest('button');
+  if (!b) return;
+  var id = ringId;
+  var t = state.tasks.find(function(x){ return x.id === id; });
+  var what = b.dataset.al;
+  hideAlarm();
+  if (!t) return;
+  if (what === 'snooze') {
+    var d = new Date(Date.now() + 10 * 60000);
+    t.due = ymd(d); t.alarm = pad(d.getHours()) + ':' + pad(d.getMinutes()); t.alarmFired = '';
+    persist();
+    toast('Snoozed for 10 minutes');
+  } else if (what === 'done') {
+    toggle(id);
+  }
+  setTimeout(checkAlarms, 300);
+});
+
+function icsEscape(s){ return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+function downloadIcs(){
+  var title = (draft.title || '').trim();
+  if (!title) { toast('Type a title first'); return; }
+  if (!draft.due) { toast('Choose a date first'); return; }
+  if (!draft.alarm) { toast('Set an alarm time first'); return; }
+  var start = parse(draft.due), p = draft.alarm.split(':');
+  start.setHours(+p[0], +p[1], 0, 0);
+  var end = new Date(start.getTime() + 15 * 60000);
+  function fl(d){ return ymd(d).replace(/-/g, '') + 'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00'; }
+  var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+  var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Daybook//EN', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+    'UID:' + uid() + '@daybook', 'DTSTAMP:' + stamp, 'DTSTART:' + fl(start), 'DTEND:' + fl(end), 'SUMMARY:' + icsEscape(title)];
+  if (draft.note) lines.push('DESCRIPTION:' + icsEscape(draft.note));
+  lines.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEscape(title), 'TRIGGER:PT0S', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR');
+  var blob = new Blob([lines.join('\r\n') + '\r\n'], {type: 'text/calendar'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'daybook-alarm.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 3000);
+  toast('Open the downloaded file to add it to your calendar');
+}
 
 function exportData(){
   var blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
@@ -861,12 +1039,16 @@ var lastDay = todayStr();
 document.addEventListener('visibilitychange', function(){
   if (document.hidden) { if (dirty) flush(); return; }
   if (todayStr() !== lastDay) { lastDay = todayStr(); rollover(); render(); }
+  checkAlarms();
 });
 
 rollover();
 render();
 initDb();
 if ('serviceWorker' in navigator) window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+checkAlarms();
+setInterval(checkAlarms, 20000);
+document.addEventListener('pointerdown', unlockAudio, {once: true});
 })();
 </script>
 </body>
